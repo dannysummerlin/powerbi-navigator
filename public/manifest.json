@@ -1,0 +1,61 @@
+{
+	"name": "Power BI Navigator",
+	"version": "0.0.1",
+	"manifest_version": 2,
+	"description": "Get more done in Power BI",
+	"page_action": {
+		"default_icon": "images/pbi-navigator32.png",
+		"default_popup": "popup.html",
+		"default_title": "Power BI Navigator"
+	},
+	"icons": {
+		"16": "images/pbi-navigator16.png",
+		"32": "images/pbi-navigator32.png",
+		"48": "images/pbi-navigator48.png",
+		"128": "images/pbi-navigator128.png"
+	},
+	"web_accessible_resources": [
+		"images/ajax-loader.gif",
+		"images/pbi-navigator128.png"
+	],
+	"background": {
+		"scripts": [
+			"shared.js",
+			"scripts/pluralize.js",
+			"background.js"
+		],
+		"persistent": true
+	},
+	"content_scripts": [{
+		"css": [ "styles/main.css" ],
+		"matches": [
+			"https://*.powerbi.com/*",
+			"https://*.analysis.windows.net/*"
+		],
+		"all_frames": true,
+		"js": [
+			"contentScript.js",
+			"shared.js",
+			"scripts/pluralize.js",
+			"popup.js"
+		],
+		"run_at": "document_end"
+	}],
+	"commands": {
+		"showSearchBox": {
+			"description": "Open Search Box",
+			"suggested_key": {
+				"default": "Ctrl+Shift+Space"
+			}
+		}
+	},
+	"permissions": [
+		"activeTab",
+		"management",
+		"https://*.powerbi.com/*",
+		"https://*.analysis.windows.net/*",
+		"storage",
+		"clipboardRead",
+		"cookies"
+	]
+}
