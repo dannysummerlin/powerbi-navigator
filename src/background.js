@@ -16,39 +16,6 @@ const showElement = (element)=>{
 		}
 	})
 }
-const parseSessionData = (data, url, settings = {})=>{
-	if (data.length == 0 || typeof data.sobjects == "undefined") return false
-	let mapKeys = Object.keys(pbiNavigator.objectSetupLabelsMap)
-	return data.sobjects.reduce((commands, { labelPlural, label, name, keyPrefix }) => {
-		if (!keyPrefix || skipObjects.includes(keyPrefix)) { return commands }
-		let baseUrl = ""
-		if (pbiNavigatorSettings.lightningMode && name.endsWith("__mdt")) { baseUrl += "/lightning/setup/CustomSessionData/page?address=" }
-		commands[keyPrefix + ".list"] = {
-			"key": keyPrefix + ".list",
-			"url": `${baseUrl}/${keyPrefix}`,
-			"label": t("prefix.list") + " " + labelPlural
-		}
-		commands[keyPrefix + ".new"] = {
-			"key": keyPrefix + ".new",
-			"url": `${baseUrl}/${keyPrefix}/e`,
-			"label": t("prefix.new") + " " + label
-		}
-		if(pbiNavigatorSettings.lightningMode) {
-			let targetUrl = url + "/lightning/setup/ObjectManager/" + name
-			mapKeys.forEach(key=>{
-				commands[keyPrefix + "." + key] = {
-					"key": keyPrefix + "." + key,
-					"url": targetUrl + pbiNavigator.objectSetupLabelsMap[key],
-					"label": [t("prefix.setup"), label, t(key)].join(" > ")
-				}
-			})
-		} else {
-			// TODO maybe figure out how to get the url for Classic
-			commands[t("prefix.setup") + label] = { "url": keyPrefix, "key": key}
-		}
-		return commands
-	}, {})
-}
 
 const goToUrl = (targetUrl, newTab, settings = {})=>{
 	chrome.tabs.query({currentWindow: true, active: true}, (tabs)=>{
@@ -73,43 +40,21 @@ chrome.commands.onCommand.addListener((command)=>{
 	}
 })
 chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
-	var orgKey = request.key !== null ? request.key?.split('!')[0] : request.key
 	switch(request.action) {
 		case "goToUrl":
 			goToUrl(request.url, request.newTab, request.settings)
 			break
-		case "getApiSessionId":
-			if (request.key === null) { sendResponse({ "error": "Must include orgId" }); return }
-			request.sid = request.uid = request.domain = ""
-			chrome.cookies.getAll({}, (all)=>{
-				all.forEach((c)=>{
-					if(c.domain.includes("salesforce.com") && c.value.includes(request.key) && c.name === "sid") {
-						request.sid = c.value
-						request.domain = c.domain
-					}
-				})
-				if(request.sid === "") { sendResponse({error: "No session data found for " + request.key}); return }
-				pbiNavigator.getHTTP("https://" + request.domain + '/services/data/' + pbiNavigator.apiVersion, "json",
-					{"Authorization": "Bearer " + request.sid, "Accept": "application/json"}
-				).then(response => {
-					if(response?.identity) {
-						request.uid = response.identity.match(/005.*/)[0]
-						sendResponse({sessionId: request.sid, userId: request.uid, apiUrl: request.domain})
-					}
-					else sendResponse({error: "No user data found for " + request.key})
-				})
-			})
-			break
 		case 'getSessionData':
-			if(SessionData[request.sessionHash] == null || request.force)
-				pbiNavigator.getHTTP("https://" + request.apiUrl + "/powerbi/metadata/app?preferReadOnlySession=true", "json",
-					{"Authorization": "Bearer " + request.sessionId, "Accept": "application/json"})
+			if(SessionData[request.accessToken] == null || request.force)
+				pbiNavigator.getHTTP(request.apiUrl + "/metadata/app?preferReadOnlySession=true&cmd=home", "json",
+					{"Authorization": "Bearer " + request.accessToken, "Accept": "application/json"})
 					.then(response => {
-						SessionData[request.sessionHash] = response // parseSessionData(response, request.domain, request.settings)
-						sendResponse(SessionData[request.sessionHash])
+						console.log(response.folders)
+						SessionData[request.accessToken] = response
+						sendResponse(SessionData[request.accessToken])
 					}).catch(e=>_d(e))
 			else
-				sendResponse(SessionData[request.sessionHash])
+				sendResponse(SessionData[request.accessToken])
 			break
 	}
 	return true

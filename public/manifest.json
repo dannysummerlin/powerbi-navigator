@@ -1,6 +1,6 @@
 {
 	"name": "Power BI Navigator",
-	"version": "0.0.1",
+	"version": "0.1.2",
 	"manifest_version": 2,
 	"description": "Get more done in Power BI",
 	"page_action": {
@@ -30,6 +30,7 @@
 		"css": [ "styles/main.css" ],
 		"matches": [
 			"https://*.powerbi.com/*",
+			"https://*.powerapps.com/*",
 			"https://*.analysis.windows.net/*"
 		],
 		"all_frames": true,
@@ -45,7 +46,7 @@
 		"showSearchBox": {
 			"description": "Open Search Box",
 			"suggested_key": {
-				"default": "Ctrl+Shift+Space"
+				"default": "Ctrl+Shift+P"
 			}
 		}
 	},
@@ -53,6 +54,7 @@
 		"activeTab",
 		"management",
 		"https://*.powerbi.com/*",
+		"https://*.powerapps.com/*",
 		"https://*.analysis.windows.net/*",
 		"storage",
 		"clipboardRead",

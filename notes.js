@@ -1,5 +1,8 @@
 // styles
 // migrated to main.css
+const rules = []
+let sheet = document.styleSheets[document.styleSheets.length - 1]
+rules.forEach(r=>sheet.insertRule(r, sheet.rules.length))
 
 // search
 const searchUrl = "https://app.powerbi.com/search?experience=power-bi&searchQuery=" + query

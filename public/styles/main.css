@@ -1,14 +1,15 @@
 root {
-	--color-report: green;
-	--color-workspace: red;
-	--color-dataset: blue;
-	--color-dataflow: purple;
+	--color-report: hsl(237, 68%, 37%);
+	--color-workspace: hsl(325, 100%, 34%);
+	--color-dataset: hsl(25, 100%, 37%);
+	--color-dataflow: hsl(45, 100%, 29%);
+	--color-dashboard: hsl(185, 41%, 33%);
 }
-*|href='#people_community_20_regular'] {fill:var(--color-workspace);}
-*|href='#person_20_regular'] {fill:var(--color-workspace);}
-*|href='#data_bar_vertical_20_regular'] {fill:var(--color-report);}
-*|href='#calendar_month_20_regular'] {fill:var(--color-dataset);}
-*|href='#branch_fork_20_regular'] {fill:var(--color-dataflow);}
+[*|href='#people_community_20_regular'] {fill:var(--color-workspace) !important;}
+[*|href='#person_20_regular'] {fill:var(--color-workspace) !important;}
+[*|href='#data_bar_vertical_20_regular'] {fill:var(--color-report) !important;}
+[*|href='#calendar_month_20_regular'] {fill:var(--color-dataset) !important;}
+[*|href='#branch_fork_20_regular'] {fill:var(--color-dataflow) !important;}
 
 .theme-default {
 	--boxBorderColor: #1589ee;
