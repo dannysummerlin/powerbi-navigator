@@ -122,7 +122,9 @@ export const ui = {
 		let preSort = {}, terms = input.toLowerCase().split(" ")
 		for(const key in pbiNavigator.commands) {
 			const label = pbiNavigator.commands[key]?.label ?? ""
-			const comboSearch = (key + '|' + label).toLowerCase()
+			// disabling this for now since keys just contain IDs, not anything meaningful to search... maybe something later though
+			// const comboSearch = (key + '|' + label).toLowerCase()
+			const comboSearch = label.toLowerCase()
 			if(comboSearch.indexOf(input) != -1) {
 				preSort[key] = pbiNavigatorSettings.searchLimit
 			} else {
@@ -259,6 +261,7 @@ export const pbiNavigator = {
 	"commands": {},
 	"init": (sessionData)=>{
 		try {
+			ui.showLoadingIndicator()
 			pbiNavigator.accessToken = sessionData.powerBIAccessToken
 			document.onkeyup = (ev)=>{ window.ctrlKey = ev.ctrlKey }
 			document.onkeydown = (ev)=>{ window.ctrlKey = ev.ctrlKey }
@@ -266,11 +269,11 @@ export const pbiNavigator = {
 			lisan.setLocaleName(pbiNavigatorSettings.language)
 			pbiNavigator.resetCommands()
 			// load workspaces, datasets, dataflows
+			ui.showLoadingIndicator()
 			chrome.runtime.sendMessage({ "action": "init", "accessToken": pbiNavigator.accessToken }, response=>{
 				if(response && response.error) { console.error("response", response, chrome.runtime.lastError); return }
 				try {
 					response.forEach(c=>pbiNavigator.commands[c.key] = c)
-					// pbiNavigator.loadCommands(pbiNavigatorSettings)
 					ui.hideLoadingIndicator()
 				} catch(e) {
 					_d([e, response])

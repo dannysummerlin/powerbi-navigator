@@ -6,9 +6,9 @@ root, #pbinavSearchBox {
 	--colorDashboard: hsl(185, 41%, 33%);
 }
 .theme-default {
-	--boxBorderColor: #1589ee;
+	--boxBorderColor: #307865;
 	--boxShadow: rgba(0, 0, 0, 0.25);
-	--boxGlow: #0070D2;
+	--boxGlow: #fafafa;
 	--boxBackgroundColor: white;
 	--itemColor: #000;
 	--itemColorHover: #000;
