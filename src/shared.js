@@ -150,6 +150,7 @@ export const ui = {
 		let r = document.createElement("a")
 		r.setAttribute("href", (pbiNavigator.commands[key]?.url ?? "#").replace('//','/'))
 		r.setAttribute('data-key', key)
+		r.setAttribute('data-icon', key.replace(/\..+/,''))
 		r.classList.add("pbinav_child")
 		r.onmouseover = ui.mouseHandler
 		r.onmouseout = ui.mouseHandlerOut
@@ -230,23 +231,12 @@ export const pbiNavigatorSettings = {
 	},
 	"settingsOnly": ()=>JSON.parse(JSON.stringify(pbiNavigatorSettings)),
 	"set": (key, value)=>{ let s={}; s[key]=value; chrome.storage.sync.set(s, response=>pbiNavigator.refreshAndClear()) },
+	"echo": (v)=>console.log('echo',v),
 	"loadSettings": ()=>{
 		chrome.storage.sync.get(pbiNavigatorSettings, settings=>{
 			for(const k in settings) { pbiNavigatorSettings[k] = settings[k] }
 			if(pbiNavigatorSettings.theme)
 				document.getElementById('pbinavStyleBox').classList = [pbiNavigatorSettings.theme]
-			chrome.runtime.sendMessage({ "action": "getSessionData", "accessToken": pbiNavigator.accessToken, "apiUrl": pbiNavigator.apiUrl }, response=>{
-				if(response && response.error) { console.error("response", response, chrome.runtime.lastError); return }
-				try {
-					// process results
-					console.log(response)
-					response.folders.forEach(f=>console.log(f.name))
-					// pbiNavigator.loadCommands(pbiNavigatorSettings)
-					ui.hideLoadingIndicator()
-				} catch(e) {
-					_d([e, response])
-				}
-			})
 		})
 	}
 }
@@ -259,15 +249,25 @@ export const pbiNavigator = {
 	"debug": false,
 	"newTabKeys": [ "ctrl+enter", "command+enter", "shift+enter" ],
 	"commands": {},
-	"init": (settings)=>{
+	"init": (sessionData)=>{
 		try {
-			pbiNavigator.accessToken = settings.powerBIAccessToken
-			pbiNavigator.apiUrl = settings.apiUrl
+			pbiNavigator.accessToken = sessionData.powerBIAccessToken
 			document.onkeyup = (ev)=>{ window.ctrlKey = ev.ctrlKey }
 			document.onkeydown = (ev)=>{ window.ctrlKey = ev.ctrlKey }
 			pbiNavigatorSettings.loadSettings()
 			lisan.setLocaleName(pbiNavigatorSettings.language)
 			pbiNavigator.resetCommands()
+			// load workspaces, datasets, dataflows
+			chrome.runtime.sendMessage({ "action": "init", "accessToken": pbiNavigator.accessToken }, response=>{
+				if(response && response.error) { console.error("response", response, chrome.runtime.lastError); return }
+				try {
+					response.forEach(c=>pbiNavigator.commands[c.key] = c)
+					// pbiNavigator.loadCommands(pbiNavigatorSettings)
+					ui.hideLoadingIndicator()
+				} catch(e) {
+					_d([e, response])
+				}
+			})
 			ui.createBox()
 			ui.bindShortcuts()
 		} catch(e) {
@@ -350,7 +350,6 @@ export const pbiNavigator = {
 		if(Object.keys(data).length > 0)
 			request.body = JSON.stringify(data)
 		return fetch(getUrl, request).then(response => {
-			pbiNavigator.apiUrl = "wabi-us-north-central-b-redirect.analysis.windows.net" //look into how dynamic this is
 			switch(type) {
 				case "json": return response.clone().json()
 				case "document": return response.clone().text()
