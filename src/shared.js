@@ -150,7 +150,6 @@ export const ui = {
 		let r = document.createElement("a")
 		r.setAttribute("href", (pbiNavigator.commands[key]?.url ?? "#").replace('//','/'))
 		r.setAttribute('data-key', key)
-		r.setAttribute('data-icon', key.replace(/\..+/,''))
 		r.classList.add("pbinav_child")
 		r.onmouseover = ui.mouseHandler
 		r.onmouseout = ui.mouseHandlerOut
@@ -162,6 +161,14 @@ export const ui = {
 		if(pbiNavigator.commands[key]?.userId) {
 			r.setAttribute('data-userid',pbiNavigator.commands[key].userId)
 			r.onclick = ui.mouseClickLoginAs
+		}
+		const icon = key.replace(/\..+/,"")
+		if(pbiNavigator.supportedIcons.includes(icon)) {
+			r.setAttribute("data-icon", icon)
+			r.setAttribute("title", icon)
+			let iconBox = document.createElement("div")
+			iconBox.classList.add("pbIcon")
+			r.appendChild(iconBox)
 		}
 		ui.navOutput.appendChild(r)
 	},
@@ -248,6 +255,7 @@ export const pbiNavigator = {
 	"ctrlKey": false,
 	"debug": false,
 	"newTabKeys": [ "ctrl+enter", "command+enter", "shift+enter" ],
+	"supportedIcons": ["workspace","dataflow","dataset"],
 	"commands": {},
 	"init": (sessionData)=>{
 		try {

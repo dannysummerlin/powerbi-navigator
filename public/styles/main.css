@@ -1,16 +1,10 @@
-root {
-	--color-report: hsl(237, 68%, 37%);
-	--color-workspace: hsl(325, 100%, 34%);
-	--color-dataset: hsl(25, 100%, 37%);
-	--color-dataflow: hsl(45, 100%, 29%);
-	--color-dashboard: hsl(185, 41%, 33%);
+root, #pbinavSearchBox {
+	--colorReport: hsl(237, 68%, 37%);
+	--colorWorkspace: hsl(325, 100%, 34%);
+	--colorDataset: hsl(25, 100%, 37%);
+	--colorDataflow: hsl(45, 100%, 29%);
+	--colorDashboard: hsl(185, 41%, 33%);
 }
-[*|href='#people_community_20_regular'] {fill:var(--color-workspace) !important;}
-[*|href='#person_20_regular'] {fill:var(--color-workspace) !important;}
-[*|href='#data_bar_vertical_20_regular'] {fill:var(--color-report) !important;}
-[*|href='#calendar_month_20_regular'] {fill:var(--color-dataset) !important;}
-[*|href='#branch_fork_20_regular'] {fill:var(--color-dataflow) !important;}
-
 .theme-default {
 	--boxBorderColor: #1589ee;
 	--boxShadow: rgba(0, 0, 0, 0.25);
@@ -52,7 +46,7 @@ root {
 	--iconFilter: hue-rotate(240deg);	
 }
 
-#pbiNavSearchBox {
+#pbinavSearchBox {
 	opacity: 0;
 	transition-property: opacity;
 	transition-duration: .2s;
@@ -70,30 +64,30 @@ root {
 	background-color: var(--boxBackgroundColor);
 	font-family: Helvetica, Arial, sans-serif;
 }
-#pbiNavSearchBox .pbiNav_wrapper {
+#pbinavSearchBox .pbinav_wrapper {
 	background: var(--boxBackgroundColor);
 	position:relative;
 	height: 48px;
 	display: flex;
 }
-#pbiNavSearchBox .pbiNavOutput {
+#pbinavSearchBox .pbinavOutput {
 	max-height:640px;
 	overflow:auto;
 }
-.pbiNav_shadow {
+.pbinav_shadow {
 	max-height:100%;
 	overflow:auto;
 }
-.pbiNav_child:hover {
+.pbinav_child:hover {
 	color: var(--itemColorHover);
 }
-.pbiNav_child {
+.pbinav_child {
 	display:block;
 	color:var(--itemColor);
 	font-size: 16px;
 	text-decoration: none;
 }
-#pbiNavSearchBox input {
+#pbinavSearchBox input {
 	position: relative;
 	flex: 1;
 	display: inline-block;
@@ -104,23 +98,59 @@ root {
 	color:var(--itemColor);
 	font-size:24px;
 }
-.pbiNav_selected {
+.pbinav_selected {
 	background-color:var(--itemBackground);
 	color:var(--itemColorHover);
 }
-#pbiNav_logo {
+#pbinav_logo {
 	filter:  var(--iconFilter);
 	width:48px;
 	height:48px;
 	display: inline-block;
 }
-#pbiNavLoader {
+#pbinavLoader {
 	visibility: hidden;
 	display: inline-block;
 	width: 16px;
 	height: 16px;
 	margin-top: auto;
 	margin-bottom: auto;
+}
+
+[*|href='#people_community_20_regular'] {fill:var(--colorWorkspace) !important;}
+[*|href='#person_20_regular'] {fill:var(--colorWorkspace) !important;}
+[*|href='#data_bar_vertical_20_regular'] {fill:var(--colorReport) !important;}
+[*|href='#calendar_month_20_regular'] {fill:var(--colorDataset) !important;}
+[*|href='#branch_fork_20_regular'] {fill:var(--colorDataflow) !important;}
+
+.pbinav_child .pbIcon {
+	clear: both;
+    height: 0.9em;
+    width: 0.9em;
+	position: relative;
+	top: 0;
+	float:right;
+	height: 0.9em;
+	width: 0.9em;
+	mask-repeat: no-repeat;
+	mask-size: contain;
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-size: contain;
+}
+[data-icon="dataflow"] .pbIcon {
+    background-color: var(--colorDataflow);
+	mask-image: url(https://raw.githubusercontent.com/microsoft/PowerBI-Icons/main/SVG/Dataflow.svg);
+	-webkit-mask-image: url(https://raw.githubusercontent.com/microsoft/PowerBI-Icons/main/SVG/Dataflow.svg);
+}
+[data-icon="dataset"] .pbIcon {
+	background-color: var(--colorDataset);
+	mask-image: url(https://raw.githubusercontent.com/microsoft/PowerBI-Icons/main/SVG/Dataset.svg);
+    -webkit-mask-image: url(https://raw.githubusercontent.com/microsoft/PowerBI-Icons/main/SVG/Dataset.svg);
+}
+[data-icon="workspace"] .pbIcon {
+	background-color: var(--colorWorkspace);
+    mask-image: url(https://raw.githubusercontent.com/microsoft/PowerBI-Icons/main/SVG/Workspace.svg);
+    -webkit-mask-image: url(https://raw.githubusercontent.com/microsoft/PowerBI-Icons/main/SVG/Workspace.svg);
 }
 /*.forceStyle .allow-horizontal-form .form-horizontal .inlineEditUndo {
     margin-bottom: -3em;
