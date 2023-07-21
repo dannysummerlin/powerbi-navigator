@@ -67,6 +67,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 								})
 							})
 						} catch(e) { console.error("Error loading datasets", e); return e }
+						try {
+							fetch(`${pbiNavigatorSettings.apiUrl}/groups/${w.id}/reports`, standardHeaders).then(rs=>rs.json()).then(rs=>{
+								chrome.tabs.sendMessage(sender.tab.id, { "action": "addCommands", "resource": "report", "commands":
+									rs.value.map(r=>({ "label": `${w.name} > ${r.name}`, "key": `report.${r.id}`, "url": r.webUrl }) )
+								})
+							})
+						} catch(e) { console.error("Error loading datasets", e); return e }
 					})
 				}).catch(e=>{ sendResponse(e); return false })
 				sendResponse("command.loading")

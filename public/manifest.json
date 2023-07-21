@@ -1,6 +1,6 @@
 {
 	"name": "Power BI Navigator",
-	"version": "1.0.0",
+	"version": "1.1.6",
 	"manifest_version": 2,
 	"description": "Get more done in Power BI",
 	"page_action": {
@@ -16,7 +16,11 @@
 	},
 	"web_accessible_resources": [
 		"images/ajax-loader.gif",
-		"images/pbi-navigator128.png"
+		"images/pbi-navigator128.png",
+		"images/Dataflow.svg",
+		"images/Dataset.svg",
+		"images/Workspace.svg",
+		"images/Report.svg"
 	],
 	"background": {
 		"scripts": [
@@ -52,12 +56,9 @@
 	},
 	"permissions": [
 		"activeTab",
-		"management",
 		"https://*.powerbi.com/*",
 		"https://*.powerapps.com/*",
 		"https://*.analysis.windows.net/*",
-		"storage",
-		"clipboardRead",
-		"cookies"
+		"storage"
 	]
 }

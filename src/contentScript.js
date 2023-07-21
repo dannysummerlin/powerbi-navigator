@@ -1,30 +1,26 @@
 import { ui, pbiNavigator, pbiNavigatorSettings, _d } from "./shared"
 import { t } from "lisan"
+let firstLoad = true
 
-pbiNavigator.pasteFromClipboard = (newtab)=>{
-	let cb = document.createElement("textarea")
-	let body = document.getElementsByTagName('body')[0]
-	body.appendChild(cb)
-	cb.select()
-	document.execCommand('paste')
-	const clipboardValue = cb.value.trim()
-	cb.remove()
-	return clipboardValue
-}
-
-const loadPBINavigator = ()=>{
+const loadPBINavigator = (counter)=>{
+	if(!firstLoad || pbiNavigator.accessToken)
+		return
+	if(typeof counter != "number")
+		counter = 0
+	if(counter === 0)
+		firstLoad = false
 	let sessionData = {}
-	if(document.body) {
+	if(document.body && counter < 3) {
 		const waitTime = 30 // slight pause to let PowerBI Javascript to run and populate variables
 		const variables = ["powerBIAccessToken"] // all we need for now
-		let scriptContent = "setTimeout(()=>{" + variables.map(v=>`document.body.dataset["${v}"] = JSON.stringify(${v});`) + `}, ${waitTime})`
+		let scriptContent = "setTimeout(()=>{ try { " + variables.map(v=>`document.body.dataset["${v}"] = JSON.stringify(${v});`) + `} catch(e) {} }, ${waitTime})`
 		let injected = document.createElement('script')
 		injected.id = 'tmpScript'
 		injected.appendChild(document.createTextNode(scriptContent))
 		document.body.appendChild(injected)
 		setTimeout(()=>{
 			try { variables.forEach(v=>sessionData[v] = JSON.parse(document.body.dataset[v])) }
-			catch(e) { loadPBINavigator() }
+			catch(e) { loadPBINavigator(counter++) }
 			document.getElementById("tmpScript").remove()
 			variables.forEach(v=>delete document.body.dataset[v])
 			pbiNavigator.init(sessionData)

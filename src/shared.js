@@ -260,7 +260,7 @@ export const pbiNavigator = {
 	"listPosition": -1,
 	"ctrlKey": false,
 	"debug": false,
-	"resources": ["workspace", "dataflow", "dataset"],
+	"resources": ["workspace", "dataflow", "dataset", "report"],
 	"resourceCaches": {},
 	"newTabKeys": [ "ctrl+enter", "command+enter", "shift+enter" ],
 	"supportedIcons": [],

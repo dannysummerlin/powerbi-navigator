@@ -139,20 +139,21 @@ root, #pbinavSearchBox {
 }
 [data-icon="dataflow"] .pbIcon {
     background-color: var(--colorDataflow);
-	mask-image: url(https://raw.githubusercontent.com/microsoft/PowerBI-Icons/main/SVG/Dataflow.svg);
-	-webkit-mask-image: url(https://raw.githubusercontent.com/microsoft/PowerBI-Icons/main/SVG/Dataflow.svg);
+	mask-image: url(chrome-extension://__MSG_@@extension_id__/images/Dataflow.svg);
+	-webkit-mask-image: url(chrome-extension://__MSG_@@extension_id__/images/Dataflow.svg);
 }
 [data-icon="dataset"] .pbIcon {
 	background-color: var(--colorDataset);
-	mask-image: url(https://raw.githubusercontent.com/microsoft/PowerBI-Icons/main/SVG/Dataset.svg);
-    -webkit-mask-image: url(https://raw.githubusercontent.com/microsoft/PowerBI-Icons/main/SVG/Dataset.svg);
+	mask-image: url(chrome-extension://__MSG_@@extension_id__/images/Dataset.svg);
+    -webkit-mask-image: url(chrome-extension://__MSG_@@extension_id__/images/Dataset.svg);
 }
 [data-icon="workspace"] .pbIcon {
 	background-color: var(--colorWorkspace);
-    mask-image: url(https://raw.githubusercontent.com/microsoft/PowerBI-Icons/main/SVG/Workspace.svg);
-    -webkit-mask-image: url(https://raw.githubusercontent.com/microsoft/PowerBI-Icons/main/SVG/Workspace.svg);
+    mask-image: url(chrome-extension://__MSG_@@extension_id__/images/Workspace.svg);
+    -webkit-mask-image: url(chrome-extension://__MSG_@@extension_id__/images/Workspace.svg);
 }
-/*.forceStyle .allow-horizontal-form .form-horizontal .inlineEditUndo {
-    margin-bottom: -3em;
-	left: -1em;
-}*/
+[data-icon="report"] .pbIcon {
+    background-color: var(--colorReport);
+	mask-image: url(chrome-extension://__MSG_@@extension_id__/images/Report.svg);
+	-webkit-mask-image: url(chrome-extension://__MSG_@@extension_id__/images/Report.svg);
+}
