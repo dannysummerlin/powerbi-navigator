@@ -11,12 +11,11 @@ const loadPBINavigator = (counter)=>{
 		firstLoad = false
 	let sessionData = {}
 	if(document.body && counter < 3) {
-		const waitTime = 30 // slight pause to let PowerBI Javascript to run and populate variables
 		const variables = ["powerBIAccessToken"]
 		let injected = document.createElement('script')
 		injected.id = 'tmpScript'
 		injected.src = chrome.runtime.getURL('getToken.js')
-		document.body.dataset.waitTime = waitTime
+		document.body.dataset.waitTime = pbiNavigatorSettings.waitTime
 		document.body.dataset.variables = JSON.stringify(variables)
 		injected.onload = function() { this.remove() }
 		document.body.appendChild(injected)
@@ -25,7 +24,7 @@ const loadPBINavigator = (counter)=>{
 			catch(e) { loadPBINavigator(counter++) }
 			variables.forEach(v=>delete document.body.dataset[v])
 			pbiNavigator.init(sessionData)
-		}, waitTime * 2)
+		}, pbiNavigatorSettings.waitTime * 2)
 	}
 }
 

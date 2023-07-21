@@ -81,7 +81,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 				sendResponse("command.loading")
 			} catch(e) {
 				console.error(e)
-				sendResponse(e)
+				sendResponse("retry")
 			}
 			break
 	}

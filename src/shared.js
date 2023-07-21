@@ -232,6 +232,7 @@ export const pbiNavigatorSettings = {
 	"MAX_SEARCH_RESULTS": 32,
 	"theme":'theme-default',
 	"searchLimit": 16,
+	"waitTime": 50,  // slight pause to let PowerBI Javascript to run and populate variables
 	"apiUrl": "https://api.powerbi.com/v1.0/myorg",
 	"debug": false,
 	"language": "en-US",
@@ -285,15 +286,20 @@ export const pbiNavigator = {
 				"label": t(c)
 			}})
 			ui.showLoadingIndicator()
-			chrome.runtime.sendMessage({ "action": "init", "accessToken": pbiNavigator.accessToken }, response=>{
-				if(response && response.error) { console.error("response", response, chrome.runtime.lastError); return }
-				return true
-			})
+			pbiNavigator.loadResources()
 			pbiNavigator.loadCommands()
 			ui.bindShortcuts()
 		} catch(e) {
 			console.error(e)
 		}
+	},
+	"loadResources": ()=>{
+		chrome.runtime.sendMessage({ "action": "init", "accessToken": pbiNavigator.accessToken }, response=>{
+			if(response && response.error) { console.error("response", response, chrome.runtime.lastError); return }
+			if(response === "retry")
+				setTimeout( pbiNavigator.loadResources, pbiNavigatorSettings.waitTime )
+			return true
+		})
 	},
 	"loadCommands": ()=>{
 		pbiNavigator.resources.forEach(r=>pbiNavigator.resourceCaches[r].forEach(c=>pbiNavigator.commands[c.key] = c))
