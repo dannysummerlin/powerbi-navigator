@@ -34,8 +34,8 @@ export const ui = {
 		let div = document.createElement("div")
 		div.setAttribute("id", "pbinavStyleBox")
 		div.setAttribute("class", theme)
-		const loaderURL = chrome.extension.getURL("images/ajax-loader.gif")
-		const logoURL = chrome.extension.getURL("images/pbi-navigator128.png")
+		const loaderURL = chrome.runtime.getURL("images/ajax-loader.gif")
+		const logoURL = chrome.runtime.getURL("images/pbi-navigator128.png")
 		div.innerHTML = `
 <div id="pbinavSearchBox">
 	<div class="pbinav_wrapper">

@@ -5,13 +5,16 @@ const showElement = (element)=>{
 	chrome.tabs.query({currentWindow: true, active: true}, (tabs)=>{
 		switch(element) {
 			case "searchBox":
-				chrome.tabs.executeScript(tabs[0].id, {code: `
-					if(document.getElementById("pbinavSearchBox")) {
-						document.getElementById("pbinavSearchBox").style.zIndex = 9999
-						document.getElementById("pbinavSearchBox").style.opacity = 0.98
-						document.getElementById("pbinavQuickSearch").focus()
+				chrome.scripting.executeScript({
+					"target": { "tabId": tabs[0].id },
+					"func": ()=>{
+						if(document.getElementById("pbinavSearchBox")) {
+							document.getElementById("pbinavSearchBox").style.zIndex = 9999
+							document.getElementById("pbinavSearchBox").style.opacity = 0.98
+							document.getElementById("pbinavQuickSearch").focus()
+						}
 					}
-				`})
+				})
 				break
 		}
 	})
@@ -52,7 +55,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 						ws.value.map(w=>({ "label": w.name, "key": `workspace.${w.id}`, "url": `https://app.powerbi.com/groups/${w.id}/list?experience=power-bi` }) )
 					})
 					ws.value.forEach(w=>{
-						console.log('w')
 						try {
 							fetch(`${pbiNavigatorSettings.apiUrl}/groups/${w.id}/dataflows`, standardHeaders).then(ds=>ds.json()).then(ds=>{
 								chrome.tabs.sendMessage(sender.tab.id, { "action": "addCommands", "resource": "dataflow", "commands":

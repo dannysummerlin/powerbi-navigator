@@ -1,64 +1,77 @@
 {
-	"name": "Power BI Navigator",
-	"version": "1.1.6",
-	"manifest_version": 2,
-	"description": "Get more done in Power BI",
-	"page_action": {
-		"default_icon": "images/pbi-navigator32.png",
-		"default_popup": "popup.html",
-		"default_title": "Power BI Navigator"
-	},
-	"icons": {
-		"16": "images/pbi-navigator16.png",
-		"32": "images/pbi-navigator32.png",
-		"48": "images/pbi-navigator48.png",
-		"128": "images/pbi-navigator128.png"
-	},
-	"web_accessible_resources": [
-		"images/ajax-loader.gif",
-		"images/pbi-navigator128.png",
-		"images/Dataflow.svg",
-		"images/Dataset.svg",
-		"images/Workspace.svg",
-		"images/Report.svg"
-	],
-	"background": {
-		"scripts": [
-			"shared.js",
-			"scripts/pluralize.js",
-			"background.js"
-		],
-		"persistent": true
-	},
-	"content_scripts": [{
-		"css": [ "styles/main.css" ],
-		"matches": [
-			"https://*.powerbi.com/*",
-			"https://*.powerapps.com/*",
-			"https://*.analysis.windows.net/*"
-		],
-		"all_frames": true,
-		"js": [
-			"contentScript.js",
-			"shared.js",
-			"scripts/pluralize.js",
-			"popup.js"
-		],
-		"run_at": "document_end"
-	}],
-	"commands": {
-		"showSearchBox": {
-			"description": "Open Search Box",
-			"suggested_key": {
-				"default": "Ctrl+Shift+P"
-			}
-		}
-	},
-	"permissions": [
-		"activeTab",
-		"https://*.powerbi.com/*",
-		"https://*.powerapps.com/*",
-		"https://*.analysis.windows.net/*",
-		"storage"
-	]
+  "name": "Power BI Navigator",
+  "version": "1.2.8",
+  "manifest_version": 3,
+  "description": "Get more done in Power BI",
+  "icons": {
+    "16": "images/pbi-navigator16.png",
+    "32": "images/pbi-navigator32.png",
+    "48": "images/pbi-navigator48.png",
+    "128": "images/pbi-navigator128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "images/ajax-loader.gif",
+        "images/pbi-navigator128.png",
+        "images/Dataflow.svg",
+        "images/Dataset.svg",
+        "images/Workspace.svg",
+        "images/Report.svg",
+        "getToken.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "css": [
+        "styles/main.css"
+      ],
+      "matches": [
+        "https://*.powerbi.com/*",
+        "https://*.powerapps.com/*",
+        "https://*.analysis.windows.net/*"
+      ],
+      "all_frames": true,
+      "js": [
+        "contentScript.js",
+        "shared.js",
+        "scripts/pluralize.js",
+        "popup.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "commands": {
+    "showSearchBox": {
+      "description": "Open Search Box",
+      "suggested_key": {
+        "default": "Ctrl+Shift+P"
+      }
+    }
+  },
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "action": {
+    "default_icon": "images/pbi-navigator32.png",
+    "default_popup": "popup.html",
+    "default_title": "Power BI Navigator"
+  },
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; connect-src 'self' https://*.powerbi.com"
+  },
+  "host_permissions": [
+    "https://*.powerbi.com/*",
+    "https://*.powerapps.com/*",
+    "https://*.analysis.windows.net/*"
+  ]
 }
