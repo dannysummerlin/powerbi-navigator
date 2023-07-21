@@ -260,29 +260,43 @@ export const pbiNavigator = {
 	"resourceCaches": {},
 	"newTabKeys": [ "ctrl+enter", "command+enter", "shift+enter" ],
 	"supportedIcons": [],
-	"commands": {},
+	"baseCommands": Array(
+		"commands.home",
+		"commands.settings",
+		"commands.admin",
+		"commands.help",
+		"commands.refreshMetadata",
+		"commands.dumpDebug",
+		"commands.setSearchLimit"
+	),
+	"commands": null,
 	"init": (sessionData)=>{
 		try {
-			pbiNavigator.supportedIcons = [...resources]
-			resources.forEach(r=>(pbiNavigator.resourceCaches[r] = []))
+			if(!pbiNavigator.accessToken)
+				pbiNavigator.accessToken = sessionData.powerBIAccessToken
 			ui.showLoadingIndicator()
-			pbiNavigator.accessToken = sessionData.powerBIAccessToken
+			pbiNavigator.supportedIcons = [...resources]
+			resources.forEach(r=>( pbiNavigator.resourceCaches[r] = new Set() ))
+			pbiNavigator.commands = new Map()
 			document.onkeyup = (ev)=>{ window.ctrlKey = ev.ctrlKey }
 			document.onkeydown = (ev)=>{ window.ctrlKey = ev.ctrlKey }
 			pbiNavigatorSettings.loadSettings()
 			lisan.setLocaleName(pbiNavigatorSettings.language)
-			pbiNavigator.resetCommands()
-			// load workspaces, datasets, dataflows
+			pbiNavigator.baseCommands.forEach(c=>{pbiNavigator.commands[c] = {"key": c}})
+			pbiNavigatorSettings.availableThemes.forEach(th=>pbiNavigator.commands["commands.themes" + th] = { "key": "commands.themes" + th })
+			Object.keys(pbiNavigator.urlMap).forEach(c=>{pbiNavigator.commands[c] = {
+				"key": c,
+				"url": pbiNavigator.urlMap[c],
+				"label": [t("prefix.setup"), t(c)].join(" > ")
+			}})
 			ui.showLoadingIndicator()
 			chrome.runtime.sendMessage({ "action": "init", "accessToken": pbiNavigator.accessToken }, response=>{
 				if(response && response.error) { console.error("response", response, chrome.runtime.lastError); return }
-				try {
-					// just handing off for now, trying to do the command loading async
-					return true
-				} catch(e) {
-					_d([e, response])
-				}
+				// just handing off for now, trying to do the command loading async
+				try { return true }
+				catch(e) { _d([e, response]) }
 			})
+			pbiNavigator.loadCommands()
 			ui.createBox()
 			ui.bindShortcuts()
 		} catch(e) {
@@ -290,23 +304,7 @@ export const pbiNavigator = {
 			if(pbiNavigatorSettings.debug) console.error(e)
 		}
 	},
-	"resetCommands": ()=>{
-		pbiNavigator.commands = {}
-		Array(
-			"commands.home",
-			"commands.settings",
-			"commands.admin",
-			"commands.help",
-			"commands.refreshMetadata",
-			"commands.dumpDebug",
-			"commands.setSearchLimit"
-		).forEach(c=>{pbiNavigator.commands[c] = {"key": c}})
-		pbiNavigatorSettings.availableThemes.forEach(th=>pbiNavigator.commands["commands.themes" + th] = { "key": "commands.themes" + th })
-		Object.keys(pbiNavigator.urlMap).forEach(c=>{pbiNavigator.commands[c] = {
-			"key": c,
-			"url": pbiNavigator.urlMap[c],
-			"label": [t("prefix.setup"), t(c)].join(" > ")
-		}})
+	"loadCommands": ()=>{
 		pbiNavigator.resourceCaches.forEach(r=>r.forEach( pbiNavigator.resourceCaches[r].forEach(c=>pbiNavigator.commands[c.key] = c) ))
 		ui.hideLoadingIndicator()
 	},
@@ -379,22 +377,21 @@ export const pbiNavigator = {
 	},
 	"refreshAndClear": ()=>{
 		ui.showLoadingIndicator()
-		pbiNavigator.serverInstance = pbiNavigator.getServerInstance(pbiNavigator)
-		pbiNavigator.loadCommands(pbiNavigatorSettings, true)
+		pbiNavigator.init()
 		document.getElementById("pbinavQuickSearch").value = ""
 	},
-	"loadCommands": (settings, force = false) => {
-// maybe here
-		if([pbiNavigator.accessToken].includes(null))
-			return pbiNavigator.init()
-		if(force || Object.keys(pbiNavigator.commands).length === 0)
-			pbiNavigator.resetCommands()
-		chrome.runtime.sendMessage(
-			Object.assign(options, {"action": "getWorkspaces"}),
-			response=>Object.assign(pbiNavigator.commands, response)
-		)
-		ui.hideLoadingIndicator()
-	},
+// going with different iteration of loading
+	// "loadCommands": (settings, force = false) => {
+	// 	if([pbiNavigator.accessToken].includes(null))
+	// 		return pbiNavigator.init()
+	// 	if(force || Object.keys(pbiNavigator.commands).length === 0)
+	// 		pbiNavigator.resetCommands()
+	// 	chrome.runtime.sendMessage(
+	// 		Object.assign(options, {"action": "getWorkspaces"}),
+	// 		response=>Object.assign(pbiNavigator.commands, response)
+	// 	)
+	// 	ui.hideLoadingIndicator()
+	// },
 	"goToUrl": (url, newTab, settings)=>chrome.runtime.sendMessage({
 			action: "goToUrl",
 			url: url,

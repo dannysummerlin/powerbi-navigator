@@ -33,8 +33,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 	try {
 		switch(request.action) {
 			case "addCommands":
-				pbiNavigator.resourceCaches[request.resource] = request.commands
-				pbiNavigator.resetCommands()
+				pbiNavigator.resourceCaches[request.resource] = new Set([...pbiNavigator.resourceCaches[request.resource], ...request.commands])
+				pbiNavigator.loadCommands()
 				break
 		}
 		return true
