@@ -12,23 +12,26 @@ pbiNavigator.pasteFromClipboard = (newtab)=>{
 	return clipboardValue
 }
 
-window.addEventListener("load", ()=>{
+const loadPBINavigator = ()=>{
 	let sessionData = {}
 	if(document.body) {
+		const waitTime = 30 // slight pause to let PowerBI Javascript to run and populate variables
 		const variables = ["powerBIAccessToken"] // all we need for now
-		let scriptContent = `(()=>{
-			document.body.dataset["powerBIAccessToken"] = JSON.stringify(powerBIAccessToken)
-		})()`
+		let scriptContent = "setTimeout(()=>{" + variables.map(v=>`document.body.dataset["${v}"] = JSON.stringify(${v});`) + `}, ${waitTime})`
 		let injected = document.createElement('script')
 		injected.id = 'tmpScript'
 		injected.appendChild(document.createTextNode(scriptContent))
 		document.body.appendChild(injected)
-		variables.forEach(v=>sessionData[v] = JSON.parse(document.body.dataset[v]))
-		document.getElementById("tmpScript").remove()
-		variables.forEach(v=>delete document.body.dataset[v])
-		pbiNavigator.init(sessionData)
+		setTimeout(()=>{
+			try { variables.forEach(v=>sessionData[v] = JSON.parse(document.body.dataset[v])) }
+			catch(e) { loadPBINavigator() }
+			document.getElementById("tmpScript").remove()
+			variables.forEach(v=>delete document.body.dataset[v])
+			pbiNavigator.init(sessionData)
+		}, waitTime * 2)
 	}
-})
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 	try {
 		switch(request.action) {
@@ -43,3 +46,5 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 		return e
 	}
 })
+
+window.addEventListener("load", loadPBINavigator)

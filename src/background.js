@@ -46,55 +46,34 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
 			goToUrl(request.url, request.newTab, request.settings)
 			break
 		case "init":
-			let apiUrl = "https://api.powerbi.com/v1.0/myorg"
 			try {
-				(async ()=>{
-					let data = {"dataflows": {}, "datasets": {}}
-					data["workspaces"] = await fetch(`${apiUrl}/groups`, standardHeaders).then(w=>w.json()).then(w=>w.value).catch(e=>{ sendResponse(e); return false })
-					if(data["workspaces"]) {
-						for (let i = data["workspaces"].length - 1; i >= 0; i--) {
-							let w = data["workspaces"][i]
-							data["dataflows"][w.id] = await fetch(`${apiUrl}/groups/${w.id}/dataflows`, standardHeaders).then(d=>d.json()).then(d=>d.value)
-							data["datasets"][w.id] = await fetch(`${apiUrl}/groups/${w.id}/datasets`, standardHeaders).then(d=>d.json()).then(d=>d.value)
-						}
-						let commands = []
-						data["workspaces"].forEach(w=>{
-							commands.push({ "label": w.name, "key": `workspace.${w.id}`, "url": `https://app.powerbi.com/groups/${w.id}/list?experience=power-bi` })
-							data["datasets"][w.id].forEach(d=>commands.push({ "label": `${w.name} > ${d.name}`, "key": `dataset.${d.id}`, "url": d.webUrl }))
-							data["dataflows"][w.id].forEach(d=>commands.push({ "label": `${w.name} > ${d.name}`, "key": `dataflow.${d.objectId}`, "url": `https://app.powerbi.com/groups/${w.id}/dataflows/${d.objectId}?experience=power-bi` }))
-						})
-						sendResponse(commands)
-					}
-				})()
-				return true
+				fetch(`${pbiNavigatorSettings.apiUrl}/groups`, standardHeaders).then(ws=>ws.json()).then(ws=>{
+					chrome.tabs.sendMessage(sender.tab.id, { "action": "addCommands", "resource": "workspace", "commands":
+						ws.value.map(w=>({ "label": w.name, "key": `workspace.${w.id}`, "url": `https://app.powerbi.com/groups/${w.id}/list?experience=power-bi` }) )
+					})
+					ws.value.forEach(w=>{
+						console.log('w')
+						try {
+							fetch(`${pbiNavigatorSettings.apiUrl}/groups/${w.id}/dataflows`, standardHeaders).then(ds=>ds.json()).then(ds=>{
+								chrome.tabs.sendMessage(sender.tab.id, { "action": "addCommands", "resource": "dataflow", "commands":
+									ds.value.map(d=>({ "label": `${w.name} > ${d.name}`, "key": `dataflow.${d.objectId}`, "url": `https://app.powerbi.com/groups/${w.id}/dataflows/${d.objectId}?experience=power-bi` }) )
+								})
+							})
+						} catch(e) { console.error("Error loading dataflows", e); return e }
+						try {
+							fetch(`${pbiNavigatorSettings.apiUrl}/groups/${w.id}/datasets`, standardHeaders).then(ds=>ds.json()).then(ds=>{
+								chrome.tabs.sendMessage(sender.tab.id, { "action": "addCommands", "resource": "dataset", "commands":
+									ds.value.map(d=>({ "label": `${w.name} > ${d.name}`, "key": `dataset.${d.id}`, "url": d.webUrl }) )
+								})
+							})
+						} catch(e) { console.error("Error loading datasets", e); return e }
+					})
+				}).catch(e=>{ sendResponse(e); return false })
+				sendResponse("command.loading")
 			} catch(e) {
 				console.error(e)
 				sendResponse(e)
 			}
-			break
-		case 'getSessionData':
-			if(SessionData[request.accessToken] == null || request.force)
-				pbiNavigator.getHTTP(request.apiUrl + "/metadata/app?preferReadOnlySession=true&cmd=home", "json",
-					{"Authorization": "Bearer " + request.accessToken, "Accept": "application/json"})
-					.then(response => {
-						console.log("session", response)
-						SessionData[request.accessToken] = response
-						sendResponse(SessionData[request.accessToken])
-					}).catch(e=>_d(e))
-			else
-				sendResponse(SessionData[request.accessToken])
-			break
-		case 'getFolders':
-			if(SessionData[request.accessToken] == null || request.force)
-				pbiNavigator.getHTTP(request.apiUrl + "/metadata/dataDomains/folders", "json",
-					{"Authorization": "Bearer " + request.accessToken, "Accept": "application/json"})
-					.then(response => {
-						console.log(response.folders)
-						SessionData[request.accessToken] = response
-						sendResponse(SessionData[request.accessToken])
-					}).catch(e=>_d(e))
-			else
-				sendResponse(SessionData[request.accessToken])
 			break
 	}
 	return true
