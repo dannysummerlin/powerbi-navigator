@@ -29,3 +29,17 @@ window.addEventListener("load", ()=>{
 		pbiNavigator.init(sessionData)
 	}
 })
+chrome.runtime.onMessage.addListener((request, sender, sendResponse)=>{
+	try {
+		switch(request.action) {
+			case "addCommands":
+				pbiNavigator.resourceCaches[request.resource] = request.commands
+				pbiNavigator.resetCommands()
+				break
+		}
+		return true
+	} catch(e) {
+		console.error(e)
+		return e
+	}
+})

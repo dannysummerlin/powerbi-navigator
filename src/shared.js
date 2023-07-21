@@ -256,11 +256,15 @@ export const pbiNavigator = {
 	"listPosition": -1,
 	"ctrlKey": false,
 	"debug": false,
+	"resources": ["workspace", "dataflow", "dataset"],
+	"resourceCaches": {},
 	"newTabKeys": [ "ctrl+enter", "command+enter", "shift+enter" ],
-	"supportedIcons": ["workspace","dataflow","dataset"],
+	"supportedIcons": [],
 	"commands": {},
 	"init": (sessionData)=>{
 		try {
+			pbiNavigator.supportedIcons = [...resources]
+			resources.forEach(r=>(pbiNavigator.resourceCaches[r] = []))
 			ui.showLoadingIndicator()
 			pbiNavigator.accessToken = sessionData.powerBIAccessToken
 			document.onkeyup = (ev)=>{ window.ctrlKey = ev.ctrlKey }
@@ -273,8 +277,8 @@ export const pbiNavigator = {
 			chrome.runtime.sendMessage({ "action": "init", "accessToken": pbiNavigator.accessToken }, response=>{
 				if(response && response.error) { console.error("response", response, chrome.runtime.lastError); return }
 				try {
-					response.forEach(c=>pbiNavigator.commands[c.key] = c)
-					ui.hideLoadingIndicator()
+					// just handing off for now, trying to do the command loading async
+					return true
 				} catch(e) {
 					_d([e, response])
 				}
@@ -285,6 +289,26 @@ export const pbiNavigator = {
 			console.info('err',e)
 			if(pbiNavigatorSettings.debug) console.error(e)
 		}
+	},
+	"resetCommands": ()=>{
+		pbiNavigator.commands = {}
+		Array(
+			"commands.home",
+			"commands.settings",
+			"commands.admin",
+			"commands.help",
+			"commands.refreshMetadata",
+			"commands.dumpDebug",
+			"commands.setSearchLimit"
+		).forEach(c=>{pbiNavigator.commands[c] = {"key": c}})
+		pbiNavigatorSettings.availableThemes.forEach(th=>pbiNavigator.commands["commands.themes" + th] = { "key": "commands.themes" + th })
+		Object.keys(pbiNavigator.urlMap).forEach(c=>{pbiNavigator.commands[c] = {
+			"key": c,
+			"url": pbiNavigator.urlMap[c],
+			"label": [t("prefix.setup"), t(c)].join(" > ")
+		}})
+		pbiNavigator.resourceCaches.forEach(r=>r.forEach( pbiNavigator.resourceCaches[r].forEach(c=>pbiNavigator.commands[c.key] = c) ))
+		ui.hideLoadingIndicator()
 	},
 	"invokeCommand": (command, newTab, event)=>{
 		if(!command) { return false }
@@ -336,25 +360,6 @@ export const pbiNavigator = {
 		ui.hideSearchBox()
 		pbiNavigator.goToUrl(targetUrl, newTab, {command: command})
 		return true
-	},
-	"resetCommands": ()=>{
-		const modeUrl = pbiNavigatorSettings.lightningMode ? "lightning" : "classic"
-		pbiNavigator.commands = {}
-		Array(
-			"commands.home",
-			"commands.settings",
-			"commands.admin",
-			"commands.help",
-			"commands.refreshMetadata",
-			"commands.dumpDebug",
-			"commands.setSearchLimit"
-		).forEach(c=>{pbiNavigator.commands[c] = {"key": c}})
-		pbiNavigatorSettings.availableThemes.forEach(th=>pbiNavigator.commands["commands.themes" + th] = { "key": "commands.themes" + th })
-		Object.keys(pbiNavigator.urlMap).forEach(c=>{pbiNavigator.commands[c] = {
-			"key": c,
-			"url": pbiNavigator.urlMap[c][modeUrl],
-			"label": [t("prefix.setup"), t(c)].join(" > ")
-		}})
 	},
 	"getHTTP": (getUrl, type = "json", headers = {}, data = {}, method = "GET") => {
 		let request = { method: method, headers: headers }
